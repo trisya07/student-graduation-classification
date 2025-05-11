@@ -233,7 +233,7 @@ Berikut adalah perbandingan hasil model sebelum dan sesudah fine tuning mengguna
 | 1     | F1-score    | 0.85           | 0.86           |
 | -     | Accuracy    | 0.7611         | 0.7743         |
 
-### 🔍 Evaluasi terhadap Data Baru
+###  Evaluasi terhadap Data Baru
 
 Untuk menguji kemampuan generalisasi model, dilakukan prediksi terhadap data baru mahasiswa dengan karakteristik sebagai berikut:
 
@@ -253,14 +253,14 @@ Untuk menguji kemampuan generalisasi model, dilakukan prediksi terhadap data bar
 
 Model memprediksi mahasiswa tersebut akan **Tepat Waktu** dalam menyelesaikan studinya.
 
-![pengujian data baru](https://drive.google.com/uc?export=view&id=1uMkyqSHGBRXX4V-FDO-6aJm8o-PSvyao/view?usp=sharing)
+![pengujian data baru](https://drive.google.com/uc?export=view&id=1uMkyqSHGBRXX4V-FDO-6aJm8o-PSvyao)
 
 
 ### Interpretasi Model: Feature Importance
 
 Berikut adalah kontribusi masing-masing fitur terhadap prediksi model berdasarkan nilai *feature importance* dari Random Forest:
 
-![Feature Importance dari Random Forest](https://drive.google.com/uc?export=view&id=1DoVyMLlDBJ9itpiD5XqXmGIh4vwVEEQV/view?usp=sharing))
+![Feature Importance dari Random Forest](https://drive.google.com/uc?export=view&id=1DoVyMLlDBJ9itpiD5XqXmGIh4vwVEEQV)
 
 Dari visualisasi tersebut, dapat disimpulkan bahwa fitur `prodi`, `kelompok_usia`, dan beberapa nilai IPS semester akhir (seperti SMT7 dan SMT4) memiliki pengaruh terbesar terhadap keputusan model.
 
