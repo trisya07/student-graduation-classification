@@ -55,9 +55,9 @@ url2 = 'https://raw.githubusercontent.com/trisya07/student-graduation-classifica
 df_transkip = pd.read_csv(url2)
 
 # Menampilkan lima data pertama dari df_transkip
-df_transkip.head()
+df_transkip
 
-df_lulusan.head()
+df_lulusan
 
 """## Statistik Deskriptif Dataset
 Tahap ini digunakan untuk melihat ringkasan statistik dari seluruh kolom dalam dataset dan melihat tipe data pada info(). Tujuannya adalah untuk memahami distribusi awal data, mendeteksi potensi nilai kosong, data duplikat, atau data tidak konsisten sebelum dilakukan pembersihan.
@@ -75,9 +75,7 @@ df_transkip.describe(include='all')
 print("----------------------------Data Lulusan---------------------------")
 df_lulusan.describe(include='all')
 
-"""## Pembersihan data
-
-### pengecekan nilai missing value
+"""### pengecekan nilai missing value
 agar dapat memutuskan tindakan selanjutnya untuk pembersihan data jika terdapat missing value agar memepermudah kualitas data baik
 """
 
@@ -88,36 +86,12 @@ df_transkip.isnull().sum()
 print("DATA LULUSAN")
 df_lulusan.isnull().sum()
 
-"""### Membersihkan missing Value
-1. mengganti kolom nama_mk yang missing value dengan nilai yang sesuai dengan kolom nama_mk_indo yang sesuai dengan kode_mknya
-2. menghapus kolom nama_mk_indo dan nama_mk_ing karena hanya menyebutkan perbedaan bahasa, sehingga perlu dihapus untuk menghilangkan rendudansi data
-"""
-
-# menampilkan data yang missing value
-df_transkip[df_transkip.isnull().any(axis=1)]
-
-# mlihat data dengan kode mk FM1190035
-df_transkip[df_transkip['kode_mk'] == 'FM1190035']
-
-# mengganti nilai yang kosong yang kode_mknya FM1190035 menjadi "FARMAKOTERAPI INFEKSI, MATA, PERNAFASAN, TULANG DAN SENDI"
-df_transkip.loc[df_transkip['kode_mk'] == 'FM1190035', 'nama_mk'] = "FARMAKOTERAPI INFEKSI, MATA, PERNAFASAN, TULANG DAN SENDI"
-# menghapus kolom nama_mk_indo dan nama_mk _ing
-df_transkip.drop(['nama_mk_indo', 'nama_mk_ing'], axis=1, inplace=True)
-
 """### Cek Duplikasi data untuk memastikan tidak ada rendudasi data"""
 
 # cek duplikat df_transkip
 print(f"Data Duplikat Data Transkip: {df_transkip.duplicated().sum()}")
 # cek duplikat df_lulusan
 print(f"Data Duplikat Data Lulusan: {df_lulusan.duplicated().sum()}")
-
-"""### mengubah tipe data tanggal_lulus dan tgl_masuk menjadi datetime
-Konversi ini bertujuan untuk memudahkan proses labeling nanti yang menghitung dari durasi perkuliahan yang dijalani
-"""
-
-# Konversi kolom 'tanggal_lulus' dan 'tgl_masuk' ke format datetime
-df_lulusan['tanggal_lulus'] = pd.to_datetime(df_lulusan['tanggal_lulus'], format='%Y-%m-%d')
-df_lulusan['tgl_masuk'] = pd.to_datetime(df_lulusan['tgl_masuk'], format='%Y-%m-%d')
 
 """## Visualisasi EDA untuk lebih memahami dataset"""
 
@@ -147,6 +121,36 @@ axes[4].set_title('Distribusi Grade')
 # Menampilkan semua plot
 plt.tight_layout()  # Untuk menghindari tumpang tindih
 plt.show()
+
+"""### Membersihkan missing Value
+1. mengganti kolom nama_mk yang missing value dengan nilai yang sesuai dengan kolom nama_mk_indo yang sesuai dengan kode_mknya
+2. menghapus kolom nama_mk_indo dan nama_mk_ing karena hanya menyebutkan perbedaan bahasa, sehingga perlu dihapus untuk menghilangkan rendudansi data
+"""
+
+# menampilkan data yang missing value
+df_transkip[df_transkip.isnull().any(axis=1)]
+
+# mlihat data dengan kode mk FM1190035
+df_transkip[df_transkip['kode_mk'] == 'FM1190035']
+
+# mengganti nilai yang kosong yang kode_mknya FM1190035 menjadi "FARMAKOTERAPI INFEKSI, MATA, PERNAFASAN, TULANG DAN SENDI"
+df_transkip.loc[df_transkip['kode_mk'] == 'FM1190035', 'nama_mk'] = "FARMAKOTERAPI INFEKSI, MATA, PERNAFASAN, TULANG DAN SENDI"
+# menghapus kolom nama_mk_indo dan nama_mk _ing
+df_transkip.drop(['nama_mk_indo', 'nama_mk_ing'], axis=1, inplace=True)
+
+"""## Hapus Kolom tahun_lahir yang bernilai 0
+Berdasarkan hasil statistik deskriptif sebelumnya terlihat bahwa kolom tahun_lahir ada yang bernilai 0 tentunya ini tidak benar sehingga perlu ditangani. Pada proyek ini penanganan dilakukan dengan menghapusnya
+"""
+
+df_lulusan = df_lulusan[df_lulusan['tahun_lahir'] != 0]
+
+"""### mengubah tipe data tanggal_lulus dan tgl_masuk menjadi datetime
+Konversi ini bertujuan untuk memudahkan proses labeling nanti yang menghitung dari durasi perkuliahan yang dijalani
+"""
+
+# Konversi kolom 'tanggal_lulus' dan 'tgl_masuk' ke format datetime
+df_lulusan['tanggal_lulus'] = pd.to_datetime(df_lulusan['tanggal_lulus'], format='%Y-%m-%d')
+df_lulusan['tgl_masuk'] = pd.to_datetime(df_lulusan['tgl_masuk'], format='%Y-%m-%d')
 
 """## Pemeriksaan Nilai Tidak Valid pada Kolom `semester`
 Dari hasil statistik deskriptif, ditemukan bahwa kolom semester memiliki nilai minimum 0. Hal ini tidak sesuai dengan logika akademik karena semester seharusnya dimulai dari 1.
@@ -288,65 +292,6 @@ merged_df['Lulus tepat waktu/tidak'] = merged_df['Tahun Kuliah'].apply(durasi_ku
 merged_df = merged_df.drop(columns=['Tahun Kuliah'])
 merged_df.head()
 
-"""## Membandingkan rata-rata IPS dengan label
-> Visualisasi ini bertujuan untuk membandingkan rata-rata nilai IPS (Indeks Prestasi Semester) dari semester 1 hingga 8 antara mahasiswa yang lulus tepat waktu dan yang tidak. Prosesnya dimulai dengan mengelompokkan data mahasiswa berdasarkan status kelulusannya, kemudian menghitung rata-rata IPS tiap semester untuk masing-masing kelompok. Data tersebut kemudian diputar (transpose) agar semester dapat digunakan sebagai sumbu X dalam grafik. Selanjutnya dibuat grafik garis (line chart) untuk menampilkan perbandingan tren IPS antar kedua kelompok. Hasil visualisasi ini membantu dalam mengidentifikasi pola prestasi akademik yang berpotensi berpengaruh terhadap kelulusan tepat waktu.
-"""
-
-# Menghitung rata-rata IPS berdasarkan status lulus tepat waktu
-average_ips = merged_df.groupby('Lulus tepat waktu/tidak')[['IPS SMT1', 'IPS SMT2', 'IPS SMT3', 'IPS SMT4', 'IPS SMT5', 'IPS SMT6', 'IPS SMT7', 'IPS SMT8']].mean()
-
-# Transpose DataFrame untuk kemudahan plot
-average_ips = average_ips.T
-
-# Membuat line chart
-plt.figure(figsize=(10, 6))
-plt.plot(average_ips.index, average_ips[0], marker='o', label='Tidak Tepat Waktu')
-plt.plot(average_ips.index, average_ips[1], marker='o', label='Tepat Waktu')
-
-# Menambahkan judul dan label
-plt.title('Rata-rata IPS berdasarkan Status Lulus Tepat Waktu')
-plt.xlabel('IPS Semester')
-plt.ylabel('Rata-rata IPS')
-plt.xticks(rotation=45)
-plt.legend()
-plt.grid()
-
-# Menampilkan plot
-plt.show()
-
-"""## distribusi status kelulusan berdasarkan jenis kelamin
-> Visualisasi ini bertujuan untuk melihat distribusi jumlah mahasiswa berdasarkan jenis kelamin dan status kelulusannya (tepat waktu atau tidak). Dengan menggunakan countplot, grafik ini menunjukkan perbandingan jumlah mahasiswa laki-laki dan perempuan yang lulus tepat waktu dan yang tidak. Hal ini dapat membantu mengidentifikasi apakah terdapat kecenderungan kelulusan tepat waktu berdasarkan jenis kelamin.
-"""
-
-# countplot jenis kelamin berdasarkan lulus tepat waktu atau tidak
-sns.countplot(x='jenis_kelamin', hue='Lulus tepat waktu/tidak', data=merged_df)
-
-"""## distribusi status kelulusan berdasarkan status pegawai
-Visualisasi ini bertujuan untuk melihat distribusi jumlah mahasiswa berdasarkan jenis kelamin dan status kelulusannya (tepat waktu atau tidak).
-status pegawai ini berisi nilai 0 yaitu mahasiswa tidak bekerja dan 1 untuk mahasiswa bekerja.
-Dengan menggunakan countplot, grafik ini menunjukkan perbandingan jumlah mahasiswa laki-laki dan perempuan yang lulus tepat waktu dan yang tidak. Hal ini dapat membantu mengidentifikasi apakah terdapat kecenderungan kelulusan tepat waktu berdasarkan jenis kelamin.
-"""
-
-plt.figure(figsize=(12, 8))
-sns.countplot(x='status_pegawai', hue='Lulus tepat waktu/tidak', data=merged_df)
-
-"""## Distribusi Kelulusan Berdasarkan Tahun Lahir
-> Visualisasi ini bertujuan untuk melihat distribusi kelulusan mahasiswa berdasarkan tahun lahir, dengan kategori kelulusan tepat waktu atau tidak. Untuk itu, digunakan countplot dari library Seaborn, di mana sumbu X mewakili tahun lahir dan warna batang (hue) menunjukkan status kelulusan. Langkah pertama adalah memastikan bahwa kolom tahun_lahir dan Lulus tepat waktu/tidak tersedia dan bertipe data yang sesuai. Setelah itu, dibuat plot batang untuk menampilkan jumlah mahasiswa dalam setiap tahun lahir yang lulus tepat waktu maupun tidak. Jika tahun lahir terlalu banyak dan membuat visualisasi tidak jelas, maka data dapat dikelompokkan ke dalam rentang tahun menggunakan metode pd.cut. Hasil visualisasi ini memberikan gambaran awal apakah ada pola atau kecenderungan kelulusan yang berkaitan dengan tahun lahir mahasiswa.
-"""
-
-plt.figure(figsize=(12,6))
-sns.countplot(data=merged_df, x='tahun_lahir', hue='Lulus tepat waktu/tidak')
-plt.title('Distribusi Kelulusan Berdasarkan Tahun Lahir')
-plt.xticks(rotation=45)
-plt.show()
-
-"""## Distribusi Kelulusan Berdasarkan Prodi
-> Visualisasi ini bertujuan untuk menunjukkan distribusi kelulusan tepat waktu mahasiswa berdasarkan program studi (prodi). Dengan menggunakan countplot, grafik ini membandingkan jumlah mahasiswa dari tiap prodi yang lulus tepat waktu dan yang tidak. Hasil visualisasi ini dapat memberikan gambaran apakah terdapat perbedaan signifikan antara program studi dalam hal ketepatan waktu kelulusan mahasiswa.
-"""
-
-plt.figure(figsize=(12, 10))
-sns.countplot(x='prodi', hue='Lulus tepat waktu/tidak', data=merged_df)
-
 """## Identifikasi dan Visualisasi Nilai Ekstrem (Outliers)
 > Pada tahap ini, kita melakukan identifikasi nilai ekstrem (outliers) pada kolom numerik dalam dataset. Nilai ekstrem adalah data yang berada jauh di luar rentang nilai yang diharapkan, yang dapat mempengaruhi hasil analisis dan model.
 
@@ -472,6 +417,11 @@ smote = SMOTE(random_state=42)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 # cek jumlah data setelah smote
 print(y_train.value_counts())
+
+# visulisasi ditribusi label y_train setelah smote
+y_train.value_counts().plot(kind='bar')
+plt.title('Distribusi Label Setelah SMOTE')
+plt.show()
 
 """## Pemodelan Menggunakan Random Forest
 Pada tahap ini, dilakukan pemodelan untuk memprediksi ketepatan waktu kelulusan mahasiswa dengan menggunakan algoritma Random Forest Classifier.
