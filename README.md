@@ -163,7 +163,11 @@ Dua kolom tambahan yaitu nama_mk_indo dan nama_mk_ing dihapus dari dataset. Hal 
 
 Berdasarkan gambar di atas, terlihat bahwa kolom nama_mk_indo dan nama_mk_ing telah dihapus, sehingga dataset transkrip saat ini memiliki 9 kolom yang tersisa. Hal ini dilakukan untuk menyederhanakan data dan menghindari redundansi informasi.
 
-### 3. Konversi Kolom Tanggal ke Format Datetime
+### 3. Menghapus data `tahun_lahir` yang bernilai `0`
+
+Berdasarkan hasil statistik deskriptif sebelumnya terlihat bahwa kolom tahun_lahir ada yang bernilai `0` tentunya ini tidak benar, sehingga perlu ditangani. Pada proyek ini penanganan dilakukan dengan menghapusnya agar data menajadi relevan dan optimal. 
+
+### 4. Konversi Kolom Tanggal ke Format Datetime
 
 Langkah selanjutnya adalah mengonversi kolom `tanggal_lulus` dan `tgl_masuk` ke dalam format datetime. Hal ini dilakukan agar data tanggal dapat diproses lebih lanjut, misalnya untuk menghitung lama studi, membuat fitur waktu, atau melakukan filtering berdasarkan periode. Konversi dilakukan menggunakan kode berikut:
 
@@ -176,7 +180,7 @@ Tahapan ini penting karena jika kolom tanggal tetap dalam bentuk string, maka ak
 
 <img width="271" alt="hasil ganti tipedata diatetime" src="https://github.com/user-attachments/assets/8f2adfae-7f0e-49bf-9fd2-ef5c28a32fdb" />
 
-### 4. Menangani Nilai Tidak Valid pada Kolom `semester`
+### 5. Menangani Nilai Tidak Valid pada Kolom `semester`
 
 Pada eksplorasi data, ditemukan bahwa beberapa baris memiliki nilai semester 0, padahal seharusnya semester dimulai dari 1. Untuk menangani hal ini, langkah awal dilakukan identifikasi seluruh kode mata kuliah yang tercatat berada di semester 0. Setelah itu, dilakukan pengecekkan apakah kode mata kuliah tersebut juga muncul di semester lain. Gambar dibawah ini merupakan kode pengecekan kolom `semester` berdasarkan `kode_mk` apakah terdapat di semester lain dengan menampilkan 3 elemen pertama `kode_mk`.
 
@@ -188,7 +192,7 @@ for kode_mk in kode_mk_semester_0[:3]:
 ```
 <img width="98" alt="Hasil identifikasi semester 0" src="https://github.com/user-attachments/assets/50848f9f-fbc5-44fc-ab82-58d619f4299a" />
 
-Hasil dari kode tersebut menunjukan bahwa terdapat `kode_mk` yang sama di semester lain. Sehingga nilai semester 0 diganti menggunakan nilai yang paling sering muncul (modus) dengan langkah berikut.
+Hasil di atas menunjukan bahwa terdapat `kode_mk` yang sama di semester lain. Sehingga nilai semester 0 diganti menggunakan nilai yang paling sering muncul (modus) dengan langkah berikut.
 ```python
     semester_terbanyak = df_transkip[df_transkip['kode_mk'] == kode_mk]['semester'].mode()[0]
     df_transkip.loc[df_transkip['kode_mk'] == kode_mk, 'semester'] = semester_terbanyak
@@ -200,7 +204,7 @@ Namun Hasil dari penggantian nilai tersebut masih menyisakan kolom `semester` ya
 
 Sehingga data tersebut dihapus dari dataset karena dianggap tidak valid dan dapat mengganggu hasil analisis. Langkah ini bertujuan menjaga kualitas dan integritas data agar informasi urutan studi mahasiswa tetap akurat dan logis. Dataset setelah penghapusan tersebut adalah 256.293 data.
 
-### 5. Menghitung dan Menyusun Nilai IPS per Semester
+### 6. Menghitung dan Menyusun Nilai IPS per Semester
 
 Langkah selanjutnya adalah menghitung nilai IPS (Indeks Prestasi Semester) setiap mahasiswa berdasarkan transkrip nilainya. Perhitungan dilakukan dengan mengalikan bobot nilai (nilai_grade) dengan jumlah SKS mata kuliah, kemudian dibagi total SKS pada semester tersebut. Hasilnya kemudian dibulatkan ke dua desimal.
 
@@ -224,7 +228,7 @@ Hasil perhitungan IPS adalah sebagai berikut.
 
 <img width="305" alt="hasil hitung IPS" src="https://github.com/user-attachments/assets/ed4f285b-ed11-4908-9197-24f5284f14bd" />
 
-### 6. Menangani Duplikasi Nilai IPS Semester 9 
+### 7. Menangani Duplikasi Nilai IPS Semester 9 
 Beberapa mahasiswa memiliki nilai pada kolom `IPS SMT9`, namun nilainya identik dengan semester sebelumnya atau bahkan kosong. Untuk menjaga konsistensi data dan menghindari duplikasi informasi, dilakukan penghapusan kolom ini setelah dipastikan bahwa nilainya sudah di-backup ke kolom "IPS SMT8" jika dibutuhkan.
 
 ```
@@ -232,7 +236,7 @@ merged_df['IPS SMT9'] = merged_df.apply(lambda row: row['IPS SMT9'] if pd.isna(r
 merged_df.drop(columns=['IPS SMT9'], inplace=True)
 ```
 
-### 7. Menghitung Lama Studi Mahasiswa dan labeling
+### 8. Menghitung Lama Studi Mahasiswa dan labeling
 Durasi studi mahasiswa dihitung dengan selisih antara `tgl_masuk` dan `tanggal_lulus`. Hasil perhitungan disajikan dalam format deskriptif seperti "4 Tahun 2 Bulan" dan disimpan dalam kolom baru bernama Lama Kuliah. Tujuannya adalah untuk memahami distribusi lama studi mahasiswa. Selain itu, durasi ini juga dikonversi menjadi angka desimal dalam satuan tahun (misalnya 4.2 tahun) agar bisa digunakan dalam perhitungan atau klasifikasi. Berdasarkan durasi tersebut, ditambahkan juga kolom baru bernama Lulus tepat waktu/tidak dengan nilai 1 jika mahasiswa lulus dalam rentang 3.5 hingga kurang dari 5 tahun, dan 0 jika tidak. Langkah ini penting untuk menentukan target label dalam pemodelan klasifikasi.
 
 ```
@@ -268,24 +272,24 @@ Hasilnya dapat dilihat pada Gambar berikut.
 
 <img width="343" alt="hasil labeling" src="https://github.com/user-attachments/assets/c07e47da-e46b-421b-96f7-ae110aaa7ad7" />
 
-### 8 Mengecek Nilai Ekstrem
+### 9 Mengidentifikasi Nilai Ekstrem
 
 Pendeteksian nilai ekstrem (outlier) dilakukan untuk mengidentifikasi data numerik yang menyimpang jauh dari sebaran umumnya. Proses ini dilakukan dengan menghitung rata-rata dan standar deviasi dari setiap kolom numerik, kemudian menentukan batas bawah dan batas atas menggunakan rumus mean ± 3 kali standar deviasi. Nilai-nilai yang berada di luar batas tersebut dianggap sebagai outlier. Visualisasi menggunakan boxplot dan scatterplot juga dilakukan untuk membantu melihat distribusi data secara lebih jelas. Tahapan ini penting agar model yang dibangun tidak terpengaruh oleh nilai-nilai yang menyimpang dan menghasilkan prediksi yang lebih akurat.
 
 ![outlier](https://github.com/user-attachments/assets/ba555027-46ed-4d91-b954-514d0ecbaca9)
 
-### 9 Menghapus Mahasiswa Pindahan
+### 10 Menghapus Mahasiswa Pindahan pada kolom `status_masuk`
 
 Setelah proses pendeteksian nilai ekstrem, langkah pertama penanganan outlier adalah melakukan pembersihan data berdasarkan atribut `status_masuk`. Baris data dengan nilai status_masuk sebesar 1 dihapus dari dataset karena penelitian ini difokuskan pada mahasiswa reguler. Mahasiswa dengan status tersebut merupakan mahasiswa pindahan yang memiliki karakteristik akademik dan perjalanan studi yang berbeda, sehingga dikeluarkan untuk menjaga konsistensi analisis dan hasil model.
 
-### 10 Memperbaiki Nilai Tidak Konsisten pada status_pegawai
+### 11 Memperbaiki Nilai Tidak Konsisten pada status_pegawai
 Berdasarkan eksplorasi data sebelumnya, ditemukan bahwa kolom `status_pegawai` memiliki nilai yang tidak sesuai, yaitu 2, padahal seharusnya hanya terdiri dari 0 (belum bekerja) dan 1 (sudah bekerja). Setelah ditelusuri, terdapat dua baris data dengan nilai tersebut, dan mahasiswa tersebut diketahui memiliki tahun lahir 1994 dan 1997.
 
 <img width="275" alt="STATUSPEGAWAI" src="https://github.com/user-attachments/assets/4a70a2f9-8895-4ca1-a4ca-73b5ef449e27" />
 
 Berdasarkan asumsi bahwa mahasiswa tersebut kemungkinan telah bekerja atau mengalami gap year, maka nilai 2 tersebut diubah menjadi 1 agar sesuai dengan skema kategorisasi yang digunakan.
 
-### 11 Melakukan Binning pada Nilai IPS  
+### 12 Melakukan Binning pada Nilai IPS  
 selanjutnya untuk penanganan outlier kolom `IPS` proses binning dilakukan terhadap nilai IPS dari semester 1 hingga semester 8 dengan tujuan menyederhanakan representasi data numerik menjadi kategori. Metode binning yang digunakan adalah membagi nilai berdasarkan median: jika nilai IPS kurang dari atau sama dengan median maka dikategorikan sebagai `0`, dan jika lebih dari median dikategorikan sebagai `1`. Pendekatan ini membantu model untuk lebih mudah mengenali pola tanpa dipengaruhi oleh skala angka yang beragam.
 ```
 # Daftar kolom IPS
@@ -300,7 +304,7 @@ Hasilnya pada gambar berikut.
 
 <img width="240" alt="hasil binning" src="https://github.com/user-attachments/assets/32caa39e-66cd-4efc-bb4e-a39614024878" />
 
-### 12 Membuat Kolom Kategori Usia berdasarkan `tahun_lahir` dan lakukan Encoding 
+### 13 Membuat Kolom Kategori Usia berdasarkan `tahun_lahir` dan lakukan Encoding 
 
 Untuk memberikan konteks tambahan terhadap atribut `tahun_lahir`, dilakukan pengelompokan usia ke dalam tiga kategori, yaitu `Tua`, `Dewasa`, dan `Muda` berdasarkan rentang tahun lahir. Hal ini bertujuan untuk mempermudah analisis dan pemodelan dengan merepresentasikan usia dalam bentuk kategori. Setelah dikategorikan, dilakukan proses label encoding agar dapat digunakan dalam algoritma pembelajaran mesin. Kolom `kelompok_usia` kemudian disusun ulang agar posisinya berada tepat setelah kolom `tahun_lahir`.
 ```python
@@ -315,7 +319,7 @@ Hasilnya adalah sebagai berikut.
 
 <img width="343" alt="hasil labeling" src="https://github.com/user-attachments/assets/c861b396-2f47-471e-9b3e-f701d88c3a6a" />
 
-### 13 Pemilihan Fitur dan Data split
+### 14 Pemilihan Fitur dan Split Data
 
 sebelum pemilihan fitur, visualisasi heatmap ini dibuat untuk melihat hubungan korelasi antar fitur numerik dalam dataset. Langkah pertama adalah menyeleksi kolom-kolom dengan tipe data numerik menggunakan select_dtypes. Setelah itu, digunakan fungsi corr() untuk menghitung matriks korelasi antar kolom numerik tersebut. Hasil korelasi divisualisasikan menggunakan seaborn.heatmap dengan parameter annot=True agar nilai korelasi ditampilkan langsung pada setiap sel. Warna pada heatmap mencerminkan tingkat kekuatan korelasi, dengan skema warna coolwarm yang memudahkan identifikasi hubungan positif maupun negatif. Visualisasi ini berguna untuk memahami hubungan antar variabel dan membantu dalam proses seleksi fitur atau deteksi multikolinearitas sebelum pemodelan.
 
@@ -336,7 +340,7 @@ selanjutnya dilakukan visualisasi pada label data training untuk melihat apakah 
 
 berdasarkan visualisasi tersebut terlihat label `0` atau tidak tepat wkatu sangat rendah dan tidak seimbang untuk itu perlu dilakukan penanganan agar pemodelan tetap optimal.
 
-### 14. Penerapan Synthetic Minority Over-sampling Technique (SMOTE)
+### 15. Penerapan Synthetic Minority Over-sampling Technique (SMOTE)
 
 Karena data target tidak seimbang—dengan jumlah mahasiswa yang lulus tepat waktu jauh lebih banyak dibandingkan yang tidak—maka dilakukan oversampling menggunakan metode SMOTE (Synthetic Minority Over-sampling Technique). SMOTE bekerja dengan cara membuat sampel sintetis dari kelas minoritas untuk menyeimbangkan distribusi kelas. Hal ini bertujuan agar model tidak bias terhadap kelas mayoritas dan dapat belajar mengenali pola dari kedua kelas secara seimbang. Setelah diterapkan, jumlah data untuk masing-masing kelas menjadi seimbang, sebagaimana ditunjukkan oleh hasil value_counts() pada label target.
 ```
@@ -349,10 +353,13 @@ Hasil setelah dilakukan SMOTE adalah sebagai berikut.
 ![hasil smote](https://github.com/user-attachments/assets/c66c2469-ff9a-4366-962a-faa2e22f8ec7)
 
 ## Modeling
+- Tanpa Hyperparameter Tuninng
+  Pada tahap ini, kami menggunakan model Random Forest Classifier untuk memprediksi apakah seorang mahasiswa lulus tepat waktu atau tidak. Random Forest merupakan metode ensemble learning berbasis bagging, yang membangun sejumlah pohon keputusan (decision trees) selama pelatihan, lalu menggabungkan hasil dari masing-masing pohon untuk menghasilkan prediksi akhir melalui proses voting. Dalam proyek ini, model Random Forest diinisialisasi menggunakan parameter default, kecuali random_state yang diatur ke 42 untuk memastikan reprodusibilitas hasil. Parameter default ini berarti jumlah pohon (n_estimators) adalah 100, kedalaman maksimum pohon tidak dibatasi (None), dan parameter lainnya seperti min_samples_split, min_samples_leaf, serta max_features juga mengikuti nilai default dari library scikit-learn. Model kemudian dilatih menggunakan data latih hasil resampling dengan SMOTE untuk mengatasi ketidakseimbangan kelas.
 
-Pada tahap ini, kami menggunakan model Random Forest Classifier untuk memprediksi apakah seorang mahasiswa lulus tepat waktu atau tidak.
-
-```
+- Pemodelan menggunakan Hyperparameter Tuning dengan Optuna
+  Setelah mendapatkan baseline model dengan parameter default, dilakukan proses hyperparameter tuning untuk meningkatkan performa model. Proses ini bertujuan mencari kombinasi parameter terbaik yang dapat memaksimalkan akurasi prediksi. Untuk itu digunakan Optuna, yaitu library optimasi otomatis berbasis Bayesian Optimization yang efisien dalam melakukan pencarian ruang parameter.
+  Beberapa parameter penting yang disetel meliputi: jumlah pohon (n_estimators), kedalaman maksimum pohon (max_depth), jumlah minimal sampel untuk pemisahan node (min_samples_split), jumlah minimal sampel pada daun (min_samples_leaf), serta metode pemilihan fitur (max_features) antara 'sqrt' atau 'log2'.
+  ```
   params = {
         'n_estimators': trial.suggest_int('n_estimators', 100, 500),
         'max_depth': trial.suggest_int('max_depth', 5, 50),
@@ -361,6 +368,7 @@ Pada tahap ini, kami menggunakan model Random Forest Classifier untuk memprediks
         'max_features': trial.suggest_categorical('max_features', ['sqrt', 'log2']),
     }
   ```
+  Fungsi objektif (objective) akan dievaluasi sebanyak 30 kali uji coba (n_trials=30), dan dari seluruh hasil percobaan, Optuna akan memilih kombinasi parameter terbaik yang menghasilkan akurasi tertinggi. Model akhir kemudian dibangun kembali menggunakan parameter terbaik tersebut dan dilatih ulang dengan data latih.
 
 ## Evaluation
 ### Metrik Evaluasi yang Digunakan
@@ -382,7 +390,7 @@ Berikut adalah perbandingan hasil model sebelum dan sesudah fine tuning mengguna
 | 1     | Precision   | 0.92           | 0.92           |
 | 1     | Recall      | 0.79           | 0.81           |
 | 1     | F1-score    | 0.85           | 0.86           |
-| -     | Accuracy    | 0.7611         | 0.7743         |
+| -     | Accuracy    | 0.76           | 0.77           |
 
 ###  Evaluasi terhadap Data Baru
 
@@ -416,7 +424,7 @@ Berikut adalah kontribusi masing-masing fitur terhadap prediksi model berdasarka
 Dari visualisasi tersebut, dapat disimpulkan bahwa fitur `prodi`, `kelompok_usia`, dan beberapa nilai IPS semester akhir (seperti SMT7 dan SMT4) memiliki pengaruh terbesar terhadap keputusan model.
 
 ### Kesimpulan Evaluasi
-Model Random Forest menunjukkan performa yang cukup baik dalam mengklasifikasikan mahasiswa yang lulus tepat waktu dan tidak tepat waktu. Setelah dilakukan fine-tuning menggunakan Optuna, terjadi peningkatan akurasi dari **0.7611** menjadi **0.7743** pada data pengujian. Metrik lain seperti precision, recall, dan F1-score juga mengalami sedikit peningkatan, khususnya pada kelas minoritas (tidak tepat waktu), yang sebelumnya sulit diprediksi.
+Model Random Forest menunjukkan performa yang cukup baik dalam mengklasifikasikan mahasiswa yang lulus tepat waktu dan tidak tepat waktu. Setelah dilakukan fine-tuning menggunakan Optuna, terjadi peningkatan akurasi dari **0.76** menjadi **0.77** pada data pengujian. Metrik lain seperti precision, recall, dan F1-score juga mengalami sedikit peningkatan, khususnya pada kelas minoritas (tidak tepat waktu), yang sebelumnya sulit diprediksi.
 Model juga diuji terhadap satu data baru dan berhasil memprediksi bahwa mahasiswa tersebut akan **lulus tepat waktu**, sesuai dengan ekspektasi berdasarkan input nilai akademik dan demografis. Visualisasi feature importance mengungkapkan bahwa **prodi**, **kelompok usia**, dan **IPS semester 7** merupakan faktor yang paling berpengaruh terhadap prediksi model. Hal ini dapat menjadi masukan bagi pihak kampus untuk fokus pada indikator-indikator tersebut dalam upaya peningkatan ketepatan waktu kelulusan mahasiswa.
 
 **---Ini adalah bagian akhir laporan---**
