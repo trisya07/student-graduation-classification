@@ -377,7 +377,8 @@ Hasil setelah dilakukan SMOTE adalah sebagai berikut.
 3. Recall: Mengukur seberapa banyak kasus positif yang berhasil ditangkap model. 
 4. F1-score: Harmonik rata-rata dari precision dan recall.
    
-![rumus evaluasi](https://drive.google.com/uc?export=view&id=1L3N-WAOqV15SEzJQqgoOncqu-2QVG1Qo)
+<img width="403" alt="rumus eval" src="https://github.com/user-attachments/assets/1d695dc2-68da-4d13-95a0-4eb53a7c3a39" />
+
 
 ### Hasil Evaluasi
 Berikut adalah perbandingan hasil model sebelum dan sesudah fine tuning menggunakan metrik akurasi, precision, recall, dan F1-score:
@@ -412,14 +413,13 @@ Untuk menguji kemampuan generalisasi model, dilakukan prediksi terhadap data bar
 
 Model memprediksi mahasiswa tersebut akan **Tepat Waktu** dalam menyelesaikan studinya.
 
-![pengujian data baru](https://drive.google.com/uc?export=view&id=1uMkyqSHGBRXX4V-FDO-6aJm8o-PSvyao)
-
+<img width="398" alt="pengujian" src="https://github.com/user-attachments/assets/9b6f5418-5523-4666-8e04-532a7516f49f" />
 
 ### Interpretasi Model: Feature Importance
 
 Berikut adalah kontribusi masing-masing fitur terhadap prediksi model berdasarkan nilai *feature importance* dari Random Forest:
 
-![Feature Importance dari Random Forest](https://drive.google.com/uc?export=view&id=1DoVyMLlDBJ9itpiD5XqXmGIh4vwVEEQV)
+![fitur penting](https://github.com/user-attachments/assets/05ad4cd7-72b4-4ae2-9a7c-18cfcc3e1da1)
 
 Dari visualisasi tersebut, dapat disimpulkan bahwa fitur `prodi`, `kelompok_usia`, dan beberapa nilai IPS semester akhir (seperti SMT7 dan SMT4) memiliki pengaruh terbesar terhadap keputusan model.
 
